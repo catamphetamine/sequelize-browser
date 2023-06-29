@@ -1,0 +1,14 @@
+{
+	"env": {
+		"commonjs": {
+			"presets": [
+				"@babel/env"
+			]
+		},
+		"es6": {
+			"presets": [
+				["@babel/env", { modules: false }]
+			]
+		}
+	}
+}

@@ -1,0 +1,81 @@
+{
+  "name": "sequelize-browser",
+  "version": "6.0.2",
+  "description": "Sequelize build that runs in a web browser",
+  "module": "sequelize.js",
+  "main": "sequelize.cjs",
+  "types": "./index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./sequelize.js",
+      "require": "./sequelize.cjs"
+    },
+    "./build": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "require": "./build/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "bin": {
+    "sequelize-browser": "./runnable/sequelize-browser.js"
+  },
+  "scripts": {
+    "test": "mocha --colors --bail --reporter spec \"./{,!(node_modules|commonjs|modules)/**/}*.test.js\" --recursive",
+    "clean-for-build": "rimraf ./commonjs/**/* ./modules/**/*",
+    "build-commonjs-modules": "cross-env BABEL_ENV=commonjs babel ./source --out-dir ./commonjs --source-maps",
+    "build-commonjs-package.json": "node runnable/create-commonjs-package-json.js",
+    "build-commonjs": "npm-run-all build-commonjs-modules build-commonjs-package.json",
+    "build-es6-modules": "cross-env BABEL_ENV=es6 babel ./source --out-dir ./modules --source-maps",
+    "build-build": "node build.default.js",
+    "build": "npm-run-all clean-for-build build-commonjs build-es6-modules update-sequelize build-build",
+    "update-sequelize": "yarn add sequelize@latest --dev",
+    "prepublishOnly": "npm-run-all build test"
+  },
+  "peerDependencies": {
+    "sequelize": "^6.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.17.12",
+    "@babel/plugin-proposal-class-properties": "^7.17.12",
+    "@babel/plugin-transform-for-of": "^7.17.12",
+    "@babel/plugin-transform-runtime": "^7.17.12",
+    "@babel/preset-env": "^7.17.12",
+    "chai": "^4.3.6",
+    "cross-env": "^7.0.3",
+    "mocha": "^10.0.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "sequelize": "^6.32.1",
+    "sql.js": "^1.8.0",
+    "sql.js-as-sqlite3": "^0.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/catamphetamine/sequelize-browser"
+  },
+  "keywords": [
+    "sequelize",
+    "browser",
+    "web",
+    "bundle"
+  ],
+  "author": "catamphetamine <purecatamphetamine@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/catamphetamine/sequelize-browser/issues"
+  },
+  "homepage": "https://gitlab.com/catamphetamine/sequelize-browser#readme",
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "esbuild": "^0.18.10",
+    "format-util": "^1.0.5",
+    "minimist": "^1.2.8",
+    "qs": "^6.11.2",
+    "util-deprecate": "^1.0.2"
+  }
+}
