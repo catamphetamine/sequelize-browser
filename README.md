@@ -2,7 +2,7 @@
 
 A build of [Sequelize](https://sequelize.org/) that runs in a web browser.
 
-[Demo](https://catamphetamine.github.io/sequelize)
+[Demo](https://catamphetamine.github.io/sequelize-browser/)
 
 <!-- https://catamphetamine.gitlab.io/sequelize-browser/ -->
 
