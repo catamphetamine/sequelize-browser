@@ -6,8 +6,8 @@ pages:
   - yarn run build
   - mkdir ./public
   - cp --recursive ./website/* ./public/
-  - cp sequelize*.js ./public/
-  - cp sequelize*.js.map ./public/
+  - cp sequelize*.js ./public/lib/
+  - cp sequelize*.js.map ./public/lib/
 
   artifacts:
     paths:
