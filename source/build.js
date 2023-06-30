@@ -129,15 +129,22 @@ function escapeRegExp(string) {
   return string.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function getPathMatcher(pattern) {
-  return path => {
+function getPathMatcher(path) {
+  return pattern => {
     if (pattern === path) {
       return true;
     }
 
-    // Resolve wildcards at the end.
-    if (pattern[pattern.length - 1] === '*') {
-      if (pattern.slice(0, -1) === path) {
+    // Resolve wildcards.
+    if (pattern.includes('*')) {
+      const indexOfWildcard = pattern.indexOf('*');
+
+      if (indexOfWildcard !== pattern.length - 1) {
+        throw new Error(`A wildcard * could only be used at the end of a pattern: ${pattern}`);
+      }
+
+      // Resolve wildcards at the end.
+      if (path.indexOf(pattern.slice(0, -1)) === 0) {
         return true;
       }
 
