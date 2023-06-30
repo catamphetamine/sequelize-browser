@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import aliases from './aliases.js';
@@ -66,6 +66,7 @@ export default function(parameters) {
 
 function alias({ include, exclude, packages }, { inputDir }) {
   return aliasPlugin({
+    dir: inputDir,
     include: include && resolvePaths(include, inputDir),
     exclude: exclude && resolvePaths(exclude, inputDir),
     packages: Object.fromEntries(
@@ -88,7 +89,7 @@ function resolvePaths(paths, dir) {
 // A fork of `esbuild-plugin-alias` whose github repository was deleted.
 // https://unpkg.com/browse/esbuild-plugin-alias@0.2.1/
 // Added `include` option.
-function aliasPlugin({ include, exclude, packages }) {
+function aliasPlugin({ dir, include, exclude, packages }) {
   const regExp = new RegExp(`^(${Object.keys(packages).map(escapeRegExp).join('|')})$`);
 
   return {
@@ -109,6 +110,9 @@ function aliasPlugin({ include, exclude, packages }) {
         if (exclude && exclude.some(getPathMatcher(args.importer))) {
           return;
         }
+
+        // eslint-disable-next-line no-console
+        console.log(`Shim package "${args.path}" in "${relative(dir, args.importer)}"`);
 
         // https://esbuild.github.io/plugins/#on-resolve-results
         // eslint-disable-next-line consistent-return
@@ -133,7 +137,7 @@ function getPathMatcher(pattern) {
 
     // Resolve wildcards at the end.
     if (pattern[pattern.length - 1] === '*') {
-      if (pattern.indexOf(path) === 0) {
+      if (pattern.slice(0, -1) === path) {
         return true;
       }
 
