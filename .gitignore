@@ -22,5 +22,9 @@ npm-debug.log
 /sequelize.script.js
 /sequelize.script.js.map
 
+# website
+/website/lib/sequelize.script.js
+/website/lib/sequelize.script.js.map
+
 # Sublime
 *.sublime-workspace

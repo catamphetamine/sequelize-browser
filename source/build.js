@@ -64,33 +64,29 @@ export default function(parameters) {
   });
 }
 
-function alias({ include, exclude, packages }, { inputDir }) {
+function alias({ include, exclude, packages, shim }, { inputDir }) {
   return aliasPlugin({
     dir: inputDir,
     include: include && resolvePaths(include, inputDir),
     exclude: exclude && resolvePaths(exclude, inputDir),
-    packages: Object.fromEntries(
-      Object.keys(packages).map(packageName => [
+    replacements: Object.fromEntries(
+      packages.map(packageName => [
         packageName, // key
-        getShimPath(packages[packageName]), // value
-      ]),
+        getShimPath(shim), // value
+      ])
     ),
   });
 }
 
 function resolvePaths(paths, dir) {
-  // Just in case any of the files get moved around in some future versions,
-  // and that does happen during refactorings, simply include the whole './src' folder.
-  paths = ['./src/*', ...paths];
-
   return getFilePathsInLib(paths).map(path => resolve(dir, path));
 }
 
 // A fork of `esbuild-plugin-alias` whose github repository was deleted.
 // https://unpkg.com/browse/esbuild-plugin-alias@0.2.1/
 // Added `include` option.
-function aliasPlugin({ dir, include, exclude, packages }) {
-  const regExp = new RegExp(`^(${Object.keys(packages).map(escapeRegExp).join('|')})$`);
+function aliasPlugin({ dir, include, exclude, replacements }) {
+  const regExp = new RegExp(`^(${Object.keys(replacements).map(escapeRegExp).join('|')})$`);
 
   return {
     name: 'alias',
@@ -117,7 +113,7 @@ function aliasPlugin({ dir, include, exclude, packages }) {
         // https://esbuild.github.io/plugins/#on-resolve-results
         // eslint-disable-next-line consistent-return
         return {
-          path: packages[args.path],
+          path: replacements[args.path],
         };
       });
     },
