@@ -109,6 +109,14 @@ await sequelize.transaction(async t => {
 });
 ```
 
+* The bundle size is currently at about `1.5 MB`.
+  * (resolved) Half of that is `moment`'s timezone data. The latest code in the `sequelize` repo seems to have [replaced](https://github.com/sequelize/sequelize/pull/16222) `moment` with `dayjs` which means that in the next minor release of `sequelize` the browser bundle will be much smaller.
+  * (minor) In the current version of `sequelize`, `validator` is imported as a whole instead of only the functions being used, which is about `115 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222#issuecomment-1615975113) of the functions imported from `validator`  would reduce the bundle size by a tiny bit.
+  * (minor) In the current version of `sequelize`, `lodash` is imported as a whole instead of only the functions being used, which is about `75 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222) of the functions imported from `lodash` could reduce the bundle size by a tiny bit, although negligibly.
+  * `sequelize.script.js.meta.json` file in the root of the package could be analyzed via:
+    * https://bundle-buddy.com/bundle
+    * https://esbuild.github.io/analyze
+
 ## Tested Databases
 
 * SQLite — with `sqlite` "dialect" and `sql.js-as-sqlite3` package as a `dialectModule` parameter value.

@@ -21,6 +21,7 @@ npm-debug.log
 /sequelize.cjs.map
 /sequelize.script.js
 /sequelize.script.js.map
+/sequelize.script.js.meta.json
 
 # website
 /website/lib/sequelize.script.js

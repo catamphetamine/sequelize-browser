@@ -6,7 +6,8 @@ await build({
   output: './sequelize.script.js',
   dialects: ['sqlite'],
   format: 'iife',
-  minify: true
+  minify: true,
+  metafile: './sequelize.script.js.meta.json',
 });
 
 await build({
@@ -14,7 +15,7 @@ await build({
   output: './sequelize.js',
   dialects: ['sqlite'],
   format: 'esm',
-  minify: false
+  minify: false,
 });
 
 await build({
@@ -22,5 +23,5 @@ await build({
   output: './sequelize.cjs',
   dialects: ['sqlite'],
   format: 'cjs',
-  minify: false
+  minify: false,
 });

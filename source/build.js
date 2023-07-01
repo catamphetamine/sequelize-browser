@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 
 const INPUT_SOURCE = fs.readFileSync(resolve(__dirname, './index.js'), 'utf8');
 
-export default function(parameters) {
+export default async function(parameters) {
   if (!parameters) {
     throw new Error('Parameters are required');
   }
@@ -20,6 +20,7 @@ export default function(parameters) {
     dialects,
     format,
     minify,
+    metafile,
   } = parameters;
 
   if (!input) {
@@ -40,19 +41,23 @@ export default function(parameters) {
 
   const inputDir = fs.statSync(input).isDirectory() ? input : dirname(input);
 
-  return build({
+  const result = await build({
     // `stdin` is only used when input is a string rather than a file.
     stdin: {
       contents: INPUT_SOURCE.replace('\'{pathToSequelize}\'', JSON.stringify(input)),
       resolveDir: resolve(__dirname, '..'),
     },
-    bundle: true,
-    minify,
     platform: 'browser',
+    bundle: true,
     format,
-    // https://esbuild.github.io/api/#target
-    sourcemap: true,
+    minify,
+    // `metafile` parameter could be used to create a file containing build metadata
+    // which could be used to analyze the bundle size.
+    // https://esbuild.github.io/analyze
+    // https://bundle-buddy.com/esbuild
+    metafile: Boolean(metafile),
     outfile: output,
+    sourcemap: true,
     // Can define the names of packages that shouldn't be included in the bundle.
     external: [],
     // Can define env variables here.
@@ -111,6 +116,13 @@ export default function(parameters) {
       resolve(__dirname, './globals.js'),
     ],
   });
+
+  if (metafile) {
+    // Metafile analyzers:
+    // * https://esbuild.github.io/analyze
+    // * https://bundle-buddy.com/esbuild
+    fs.writeFileSync(metafile, JSON.stringify(result.metafile));
+  }
 }
 
 function alias({ include, exclude, packages, shim }, { inputDir }) {

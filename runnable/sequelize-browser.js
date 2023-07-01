@@ -10,7 +10,13 @@ import build from '../modules/build.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const { input, output, format, minify } = minimist(process.argv.slice(1))
+const {
+  input,
+  output,
+  format,
+  minify,
+  metafile,
+} = minimist(process.argv.slice(1))
 
 if (!input) {
   throw new Error('--input parameter is required');
@@ -37,5 +43,6 @@ build({
   output,
   dialects: dialects.split(','),
   format,
-  minify: minify === 'true'
+  minify: minify === 'true',
+  metafile,
 });
