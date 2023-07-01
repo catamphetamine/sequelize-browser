@@ -1,6 +1,6 @@
 {
   "name": "sequelize-browser",
-  "version": "6.0.5",
+  "version": "6.0.6",
   "description": "Sequelize build that runs in a web browser",
   "module": "sequelize.js",
   "main": "sequelize.cjs",
@@ -32,7 +32,7 @@
     "build-es6-modules": "cross-env BABEL_ENV=es6 babel ./source --out-dir ./modules --source-maps",
     "build-build": "node build.default.js",
     "build-website": "cpy sequelize.script.js sequelize.script.js.map website/lib --flat",
-    "build": "npm-run-all clean-for-build build-commonjs build-es6-modules update-sequelize build-build",
+    "build": "npm-run-all clean-for-build build-commonjs build-es6-modules update-sequelize build-build build-website",
     "update-sequelize": "yarn add sequelize@latest --dev",
     "prepublishOnly": "npm-run-all build test"
   },

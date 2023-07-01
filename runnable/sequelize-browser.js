@@ -20,6 +20,10 @@ if (!output) {
   throw new Error('--output parameter is required');
 }
 
+if (!dialects) {
+  throw new Error('--dialects parameter is required');
+}
+
 if (!format) {
   throw new Error('--format parameter is required');
 }
@@ -28,4 +32,10 @@ if (minify !== 'true' && minify !== 'false') {
 	throw new Error(`Invalid --minify parameter value: ${minify}`);
 }
 
-build({ input, output, format, minify: minify === 'true' })
+build({
+  input,
+  output,
+  dialects: dialects.split(','),
+  format,
+  minify: minify === 'true'
+});

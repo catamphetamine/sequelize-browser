@@ -17,8 +17,9 @@ export default function(parameters) {
   const {
     input,
     output,
+    dialects,
+    format,
     minify,
-    format
   } = parameters;
 
   if (!input) {
@@ -26,6 +27,9 @@ export default function(parameters) {
   }
   if (!output) {
     throw new Error('`output` parameter is required');
+  }
+  if (!dialects) {
+    throw new Error('`dialects` parameter is required');
   }
   if (!['iife', 'cjs', 'esm'].includes(format)) {
     throw new Error('`format` parameter must be one of: "iife", "cjs", "esm"');
@@ -55,7 +59,52 @@ export default function(parameters) {
     define: {},
     // The global variable name.
     globalName: format === 'iife' ? 'Sequelize' : undefined,
-    plugins: aliases.map(_ => alias(_, { inputDir })),
+    plugins: [
+      // Replaces some server-side packages with "shims".
+      ...aliases.map(_ => alias(_, { inputDir })),
+
+      // Replaces unsupported "dialects" with a placeholder "shim"
+      // so that the resulting bundle size is a bit smaller
+      // because unsupported databases aren't supported anyway.
+      //
+      // The resulting reduction of the bundle size was only about 150 KB
+      // which is negligible compared to the 1500 KB size of the resulting bundle.
+      //
+      // The syntax for `require()`ing those in `src/sequelize.js` is a bit different depending on the code version:
+      // * Dialect = require('./dialects/mysql').MysqlDialect; — Latest code in `src/sequelize.js` as of 30th Jun, 2023.
+      // * Dialect = require("./dialects/mysql"); — The code in `lib/sequelize.js` in the latest release as of 30th Jun, 2023.
+      //
+      replacePlugin({
+        dir: inputDir,
+        include: resolvePaths([
+          // Just in case any of the files get moved around in some future versions,
+          // and that does happen during refactorings, simply include the whole './src' folder.
+          './src/*',
+          // './src/sequelize.js',
+        ], inputDir),
+        //
+        // // Matches:
+        // // * Dialect = require('./dialects/mysql').MysqlDialect; — Latest code in `src/sequelize.js` as of 30th Jun, 2023.
+        // // * Dialect = require("./dialects/mysql"); — The code in `lib/sequelize.js` in the latest release as of 30th Jun, 2023.
+        // regExp: /^Dialect = require\(['"]\.\/dialects\/([^'"]+)['"]\)(?:\.[^;]+)?;$/,
+        //
+        // Matches: './dialects/mysql', etc
+        regExp: /^\.\/dialects\/([^/]+)$/,
+        // Replace a dialect import path with a placeholder import path
+        // so that the resulting bundle size is a bit smaller
+        // because unsupported databases aren't supported anyway.
+        replaceWith: ({ importPath, filePath, regExp }) => {
+          const match = importPath.match(regExp);
+          const dialect = match[1];
+          // `dialect` isn't ever "abstract", but added it here just in case
+          // anything changes in Sequelize source codes in some future.
+          if (dialect === 'abstract' || dialects.includes(dialect)) {
+            return;
+          }
+          return getShimPath('dialects');
+        },
+      }),
+    ],
     // Can replace global variables with "shims".
     // https://esbuild.github.io/api/#inject
     inject: [
@@ -78,18 +127,15 @@ function alias({ include, exclude, packages, shim }, { inputDir }) {
   });
 }
 
-function resolvePaths(paths, dir) {
-  return getFilePathsInLib(paths).map(path => resolve(dir, path));
+function aliasPlugin({ dir, include, exclude, replacements }) {
+  const regExp = new RegExp(`^(?:${Object.keys(replacements).map(escapeRegExp).join('|')})$`);
+
+  return replacePlugin({ dir, include, exclude, regExp, replacements })
 }
 
-// A fork of `esbuild-plugin-alias` whose github repository was deleted.
-// https://unpkg.com/browse/esbuild-plugin-alias@0.2.1/
-// Added `include` option.
-function aliasPlugin({ dir, include, exclude, replacements }) {
-  const regExp = new RegExp(`^(${Object.keys(replacements).map(escapeRegExp).join('|')})$`);
-
+function replacePlugin({ dir, include, exclude, regExp, replaceWith, replacements }) {
   return {
-    name: 'alias',
+    name: 'replace',
     setup(build_) {
       // "we do not register 'file' namespace here, because the root file won't be processed"
       // https://github.com/evanw/esbuild/issues/791
@@ -97,6 +143,9 @@ function aliasPlugin({ dir, include, exclude, replacements }) {
       //
       // https://esbuild.github.io/plugins/#on-resolve-options
       // https://esbuild.github.io/plugins/#on-resolve-arguments
+      //
+      // https://esbuild.github.io/plugins/#on-load-options
+      // https://esbuild.github.io/plugins/#on-load-arguments
       //
       build_.onResolve({ filter: regExp }, args => {
         if (include && !include.some(getPathMatcher(args.importer))) {
@@ -107,8 +156,24 @@ function aliasPlugin({ dir, include, exclude, replacements }) {
           return;
         }
 
+        // https://esbuild.github.io/plugins/#on-load-results
+        // eslint-disable-next-line consistent-return
+        if (replaceWith) {
+          const newPath = replaceWith({ regExp, importPath: args.path, filePath: args.importer });
+          if (newPath === undefined) {
+            return;
+          }
+
+          // eslint-disable-next-line no-console
+          console.log(`Replace "${args.path}" in "${relative(dir, args.importer)}"`);
+
+          return {
+            path: newPath,
+          };
+        }
+
         // eslint-disable-next-line no-console
-        console.log(`Shim package "${args.path}" in "${relative(dir, args.importer)}"`);
+        console.log(`Replace "${args.path}" in "${relative(dir, args.importer)}"`);
 
         // https://esbuild.github.io/plugins/#on-resolve-results
         // eslint-disable-next-line consistent-return
@@ -123,6 +188,10 @@ function aliasPlugin({ dir, include, exclude, replacements }) {
 function escapeRegExp(string) {
   // $& means the whole matched string
   return string.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function resolvePaths(paths, dir) {
+  return getFilePathsInLib(paths).map(path => resolve(dir, path));
 }
 
 function getPathMatcher(path) {

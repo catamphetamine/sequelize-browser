@@ -1,0 +1,1 @@
+throw new Error('This dialect is not supported in a web browser');

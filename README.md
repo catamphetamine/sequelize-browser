@@ -70,6 +70,7 @@ Then, run the build command:
 npx sequelize-browser \
   --input ./node_modules/sequelize \
   --output ./output/sequelize.js \
+  --dialects sqlite,mysql
   --format iife \
   --minify true
 ```
@@ -84,6 +85,8 @@ await build({
   input: './node_modules/sequelize',
   // Path to the output file.
   output: './output/sequelize.js',
+  // Supported "dialects".
+  dialects: ['sqlite'],
   // * "esm" — For including the resulting file via `import`.
   // * "cjs" — For including the resulting file via `require()`.
   // * "iife" — For including the resulting file directly via a "<script/>" tag on a page.
@@ -95,19 +98,7 @@ await build({
 
 ## Limitations
 
-* The only supported databases at the moment are:
-  * SQLite (with `sql.js-as-sqlite3` module as a `dialectModule` parameter value).
-
-```js
-import Sequelize from 'sequelize'
-import sqlJsAsSqlite3 from 'sql.js-as-sqlite3'
-
-const sequelize = new Sequelize('sqlite://:memory:', {
-  dialectModule: sqlJsAsSqlite3
-})
-```
-
-* When creating ["managed" transactions](https://sequelize.org/docs/v6/other-topics/transactions/) via `sequelize.transaction(options, callback)`, it doesn't enable the "CLS" (Continuation Local Storage) feature for automatically selecting that transaction for any queries dispatched from the `callback`. The workaround is to pass the `transaction` parameter explicitly to any queries dispatched from such `callback`.
+* (Advanced Feature) When creating ["managed" transactions](https://sequelize.org/docs/v6/other-topics/transactions/) via `sequelize.transaction(options, callback)`, it won't allow the "CLS" (Continuation Local Storage) feature for automatically selecting that transaction for any queries dispatched from the `callback`. The workaround is to pass the `transaction` parameter explicitly to any queries dispatched from such `callback`.
 
 ```js
 await sequelize.transaction(async t => {
@@ -116,6 +107,19 @@ await sequelize.transaction(async t => {
     lastName: 'Lincoln'
   }, { transaction: t });
 });
+```
+
+## Tested Databases
+
+* SQLite — with `sqlite` "dialect" and `sql.js-as-sqlite3` package as a `dialectModule` parameter value.
+
+```js
+import Sequelize from 'sequelize'
+import sqlJsAsSqlite3 from 'sql.js-as-sqlite3'
+
+const sequelize = new Sequelize('sqlite://:memory:', {
+  dialectModule: sqlJsAsSqlite3
+})
 ```
 
 ## Sequelize
