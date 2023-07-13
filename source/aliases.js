@@ -249,4 +249,20 @@ export default [
     ],
     shim: 'uuid',
   },
+
+  // Replace 'validator' module with a "shim".
+  // https://github.com/sequelize/sequelize/issues/16223#issuecomment-1617967717
+  {
+    include: [
+      // Just in case any of the files get moved around in some future versions,
+      // and that does happen during refactorings, simply include the whole './src' folder.
+      './src/*',
+      // // `require()`s.
+      // './src/utils/validator-extras.js',
+    ],
+    packages: [
+      'validator',
+    ],
+    shim: 'validator',
+  },
 ];

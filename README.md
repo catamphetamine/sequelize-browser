@@ -96,9 +96,38 @@ await build({
 })
 ```
 
+## Databases
+
+The following databases have been tested and appear to be working:
+
+* SQLite — with `sqlite` "dialect" and [`sql.js-as-sqlite3`](https://npmjs.com/package/sql.js-as-sqlite3) package as a `dialectModule` parameter value.
+
+```js
+import Sequelize from 'sequelize'
+import sqlJsAsSqlite3 from 'sql.js-as-sqlite3'
+
+const sequelize = new Sequelize('sqlite://:memory:', {
+  dialectModule: sqlJsAsSqlite3
+})
+```
+
 ## Limitations
 
-* (Advanced Feature) When creating ["managed" transactions](https://sequelize.org/docs/v6/other-topics/transactions/) via `sequelize.transaction(options, callback)`, it won't allow the "CLS" (Continuation Local Storage) feature for automatically selecting that transaction for any queries dispatched from the `callback`. The workaround is to pass the `transaction` parameter explicitly to any queries dispatched from such `callback`.
+### Transactions
+
+(Advanced Feature) When creating ["managed" transactions](https://sequelize.org/docs/v6/other-topics/transactions/) via `sequelize.transaction(options, callback)`, it utilizes the "CLS" (Continuation Local Storage) feature of Node.js to automatically (or rather "automagically") select that transaction for any queries dispatched from the `callback`.
+
+```js
+await sequelize.transaction(async () => {
+  // This `.create()` call will be executed inside the transaction.
+  const user = await User.create({
+    firstName: 'Abraham',
+    lastName: 'Lincoln'
+  });
+});
+```
+
+When running in a web browser, that magic of Node.js is not available, so a developer will have to explicitly specify the transaction for queries dispatched from the `callback`.
 
 ```js
 await sequelize.transaction(async t => {
@@ -109,26 +138,70 @@ await sequelize.transaction(async t => {
 });
 ```
 
-* The bundle size is currently at about `1.5 MB`.
-  * (resolved) Half of that is `moment`'s timezone data. The latest code in the `sequelize` repo seems to have [replaced](https://github.com/sequelize/sequelize/pull/16222) `moment` with `dayjs` which means that in the next minor release of `sequelize` the browser bundle will be much smaller.
-  * (minor) In the current version of `sequelize`, `validator` is imported as a whole instead of only the functions being used, which is about `115 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222#issuecomment-1615975113) of the functions imported from `validator`  would reduce the bundle size by a tiny bit. See the [discussion](https://github.com/sequelize/sequelize/issues/16223).
-  * (minor) In the current version of `sequelize`, `lodash` is imported as a whole instead of only the functions being used, which is about `75 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222) of the functions imported from `lodash` could reduce the bundle size by a tiny bit, although negligibly.
-  * `sequelize.script.js.meta.json` file in the root of the package could be analyzed via:
-    * https://bundle-buddy.com/bundle
-    * https://esbuild.github.io/analyze
+### Validator
 
-## Tested Databases
-
-* SQLite — with `sqlite` "dialect" and `sql.js-as-sqlite3` package as a `dialectModule` parameter value.
+By default, Sequelize [supports](https://sequelize.org/docs/v6/core-concepts/validations-and-constraints/#per-attribute-validations) specifying "validators" from [`validator.js`](https://github.com/validatorjs/validator.js) library on a model field.
 
 ```js
-import Sequelize from 'sequelize'
-import sqlJsAsSqlite3 from 'sql.js-as-sqlite3'
-
-const sequelize = new Sequelize('sqlite://:memory:', {
-  dialectModule: sqlJsAsSqlite3
+sequelize.define('modelName', {
+  fieldName: {
+    type: DataTypes.STRING,
+    validate: {
+      isPostalCode: true, // Implicitly calls `isPostalCode(value)` function from `validator.js` library.
+      isUppercase: true   // Implicitly calls `isUppercase(value)` function from `validator.js` library.
+    }
+  }
 })
 ```
+
+However, while being convenient, including the whole `validator.js` package in the bundle just to support that feature increases its size by about `100 KB`, which looks like an overkill provided that most people don't even use this feature, or maybe only use a few of the "validators" from the (long) list.
+
+So to reduce the overall bundle size, and to decouple `sequelize` itself from `validator.js` package, the feature was removed. When attempting to call a certain function of `validator.js`, it will throw an error like:
+
+> `isPostalCode` function from `validator` package is not included in a browser version of `sequelize`. To fix this, import the `isPostalCode` function from `validator` package manually and then either (a) use it in a field's `validate` or (b) set it on the `Sequelize.Validator` object.
+
+As the error message suggests, there're two simple ways to fix it.
+
+The first way would be `import`ing the relevant "validator" functions from `validator.js` and then using them in the `validate` map of a model field.
+
+```js
+import isPostalCode from 'validator/lib/isPostalCode'
+import isUppercase from 'validator/lib/isUppercase'
+
+sequelize.define('modelName', {
+  fieldName: {
+    type: DataTypes.STRING,
+    validate: {
+      isPostalCode: value => isPostalCode(value),
+      isUppercase: value => isUppercase(value)
+    }
+  }
+})
+```
+
+The second way would be `import`ing the relevant "validator" functions from `validator.js` and then setting them on the `Sequelize.Validator` object.
+
+```js
+import isPostalCode from 'validator/lib/isPostalCode'
+import isUppercase from 'validator/lib/isUppercase'
+
+Sequelize.Validator.isPostalCode = isPostalCode
+Sequelize.Validator.isUppercase = isUppercase
+```
+
+### Bundle Size
+
+The bundle size is currently at about `1.5 MB`.
+
+  * (resolved) Half of that is `moment`'s timezone data. The latest code in the `sequelize` repo seems to have [replaced](https://github.com/sequelize/sequelize/pull/16222) `moment` with `dayjs` which means that in the next minor release of `sequelize` the browser bundle will be much smaller.
+
+  * (resolved) In the current version of `sequelize`, `validator` is imported as a whole instead of only the functions being used, which is about `115 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222#issuecomment-1615975113) of the functions imported from `validator`  would reduce the bundle size by a tiny bit. See the [discussion](https://github.com/sequelize/sequelize/issues/16223).
+
+  * (resolved) In the current version of `sequelize`, `lodash` is imported as a whole instead of only the functions being used, which is about `75 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222) of the functions imported from `lodash` could reduce the bundle size by a tiny bit, although negligibly.
+
+To get more insight on what exactly occupies which part of the bundle, use the `sequelize.script.js.meta.json` file in the root of the package with a bundle analyzer:
+  * https://bundle-buddy.com/bundle
+  * https://esbuild.github.io/analyze
 
 ## Sequelize
 
