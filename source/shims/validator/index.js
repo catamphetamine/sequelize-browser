@@ -9,6 +9,8 @@ import isIPRange from 'validator/lib/isIPRange';
 import isIP from 'validator/lib/isIP';
 import isMACAddress from 'validator/lib/isMACAddress';
 import isNumeric from 'validator/lib/isNumeric';
+import isDecimal from 'validator/lib/isDecimal';
+import isBoolean from 'validator/lib/isBoolean';
 
 const validator = {};
 
@@ -21,6 +23,8 @@ validator.isIPRange = isIPRange;
 validator.isIP = isIP;
 validator.isMACAddress = isMACAddress;
 validator.isNumeric = isNumeric;
+validator.isDecimal = isDecimal;
+validator.isBoolean = isBoolean;
 
 // The following functions are not used in `sequelize` code
 // but are exposed to the users of `sequelize` package:
@@ -38,13 +42,11 @@ validator.isBase58 = () => functionNotIncluded('isBase58');
 validator.isBase64 = () => functionNotIncluded('isBase64');
 validator.isBefore = () => functionNotIncluded('isBefore');
 validator.isBIC = () => functionNotIncluded('isBIC');
-validator.isBoolean = () => functionNotIncluded('isBoolean');
 validator.isBtcAddress = () => functionNotIncluded('isBtcAddress');
 validator.isByteLength = () => functionNotIncluded('isByteLength');
 validator.isCreditCard = () => functionNotIncluded('isCreditCard');
 validator.isCurrency = () => functionNotIncluded('isCurrency');
 validator.isDataURI = () => functionNotIncluded('isDataURI');
-validator.isDecimal = () => functionNotIncluded('isDecimal');
 validator.isDivisibleBy = () => functionNotIncluded('isDivisibleBy');
 validator.isEAN = () => functionNotIncluded('isEAN');
 validator.isEmail = () => functionNotIncluded('isEmail');

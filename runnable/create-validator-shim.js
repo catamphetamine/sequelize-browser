@@ -6,6 +6,7 @@ import fs from 'fs';
 // * `sequelize\packages\core\src\geo-json.ts`.
 //
 const VALIDATOR_FUNCTIONS_USED_IN_SEQUELIZE_CODE = [
+	// These are used in the latest version of `sequelize` source code as of Jul 15, 2023.
 	'isFloat',
 	'isInt',
 	'isDate',
@@ -13,7 +14,10 @@ const VALIDATOR_FUNCTIONS_USED_IN_SEQUELIZE_CODE = [
 	'isIPRange',
 	'isIP',
 	'isMACAddress',
-	'isNumeric'
+	'isNumeric',
+	// These additional ones are used in the latest released `sequelize` npm package.
+	'isDecimal',
+	'isBoolean'
 ];
 
 const VALIDATOR_LIB_DIRECTORY = './node_modules/validator/lib';
