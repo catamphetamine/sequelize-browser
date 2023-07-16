@@ -32,7 +32,7 @@
     "build-es6-modules": "cross-env BABEL_ENV=es6 babel ./source --out-dir ./modules --source-maps",
     "build-build": "node build.default.js",
     "build-website": "cpy sequelize.script.js sequelize.script.js.map website/lib --flat",
-    "build": "npm-run-all clean-for-build build-commonjs build-es6-modules update-sequelize update-validator create-validator-shim build-build build-website",
+    "build": "npm-run-all clean-for-build create-validator-shim build-commonjs build-es6-modules update-sequelize update-validator build-build build-website",
     "update-sequelize": "yarn add sequelize@latest --dev",
     "update-validator": "yarn upgrade sequelize",
     "create-validator-shim": "node runnable/create-validator-shim.js",

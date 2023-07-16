@@ -15,7 +15,7 @@ const VALIDATOR_FUNCTIONS_USED_IN_SEQUELIZE_CODE = [
 	'isIP',
 	'isMACAddress',
 	'isNumeric',
-	// These additional ones are used in the latest released `sequelize` npm package.
+	// These additional ones are used in the latest released `sequelize` npm package (6.32.1).
 	'isDecimal',
 	'isBoolean'
 ];
