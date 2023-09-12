@@ -1,0 +1,1 @@
+This "shim" is currently disabled because it was written for `sequelize@7` which hasn't been published yet. Re-enable it in `source/aliases.js` when `sequelize@7` is published.

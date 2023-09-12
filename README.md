@@ -193,14 +193,17 @@ Sequelize.Validator.isUppercase = isUppercase
 
 The bundle size is currently at about `1.5 MB`.
 
-  * (resolved) Half of that is `moment`'s timezone data. The latest code in the `sequelize` repo seems to have [replaced](https://github.com/sequelize/sequelize/pull/16222) `moment` with `dayjs` which means that in the next minor release of `sequelize` the browser bundle will be much smaller.
+  * (resolved in `sequelize@7` code) Half of that is `moment`'s timezone data. The latest code in the `sequelize` repo seems to have [replaced](https://github.com/sequelize/sequelize/pull/16222) `moment` with `dayjs` which means that in the next "major" release of `sequelize` the browser bundle will be much smaller.
+    * After `sequelize@7` is published, uncomment `moment` "shim" in `source/aliases.js` and rebuild the package.
 
-  * (resolved) In the current version of `sequelize`, `validator` is imported as a whole instead of only the functions being used, which is about `115 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222#issuecomment-1615975113) of the functions imported from `validator`  would reduce the bundle size by a tiny bit. See the [discussion](https://github.com/sequelize/sequelize/issues/16223).
+  * (resolved in `sequelize@7` code) In the current version of `sequelize`, `validator` is imported as a whole instead of only the functions being used, which is about `115 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222#issuecomment-1615975113) of the functions imported from `validator`  would reduce the bundle size by a tiny bit. See the [discussion](https://github.com/sequelize/sequelize/issues/16223).
+    * After `sequelize@7` is published, uncomment `validator` "shim" in `source/aliases.js` and rebuild the package.
 
-  * (resolved) In the current version of `sequelize`, `lodash` is imported as a whole instead of only the functions being used, which is about `75 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222) of the functions imported from `lodash` could reduce the bundle size by a tiny bit, although negligibly.
+  * (resolved in `sequelize@7` code) In the current version of `sequelize`, `lodash` is imported as a whole instead of only the functions being used, which is about `75 KB` of the bundle size. [Reducing the scope](https://github.com/sequelize/sequelize/pull/16222) of the functions imported from `lodash` could reduce the bundle size by a tiny bit, although negligibly.
+    * After `sequelize@7` is published, this is supposed to no longer be an issue.
 
 To get more insight on what exactly occupies which part of the bundle, use the `sequelize.script.js.meta.json` file in the root of the package with a bundle analyzer:
-  * https://bundle-buddy.com/bundle
+  * https://bundle-buddy.com
   * https://esbuild.github.io/analyze
 
 ## Sequelize
