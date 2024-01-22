@@ -102,6 +102,8 @@ The following databases have been tested and appear to be working:
 
 * SQLite — with `sqlite` "dialect" and [`sql.js-as-sqlite3`](https://npmjs.com/package/sql.js-as-sqlite3) package as a `dialectModule` parameter value.
 
+### Node.js
+
 ```js
 import Sequelize from 'sequelize'
 import sqlJsAsSqlite3 from 'sql.js-as-sqlite3'
@@ -109,6 +111,51 @@ import sqlJsAsSqlite3 from 'sql.js-as-sqlite3'
 const sequelize = new Sequelize('sqlite://:memory:', {
   dialectModule: sqlJsAsSqlite3
 })
+```
+
+### Browser (with bundler)
+
+```js
+import Sequelize from 'sequelize'
+import sqlJsAsSqlite3 from 'sql.js-as-sqlite3'
+import initSqlJs from 'sql.js'
+
+sqlJsAsSqlite3.configure({
+  // `sql.js` package default export.
+  initSqlJs,
+  // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
+  // The version of the `*.wasm` files must match the version of the `sql.js` package.
+  // Must end with a "/".
+  wasmFileBaseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+})
+
+const sequelize = new Sequelize('sqlite://:memory:', {
+  dialectModule: sqlJsAsSqlite3
+})
+```
+
+### Browser (no bundler)
+
+One can use any npm CDN service, e.g. [unpkg.com](https://unpkg.com) or [jsdelivr.net](https://jsdelivr.net)
+
+```html
+<script src="https://unpkg.com/sequelize-browser@6.x/sequelize.script.js"></script>
+
+<script src="https://unpkg.com/sql.js-as-sqlite3@0.2.x/bundle/sql.js-as-sqlite3.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"></script>
+<script>
+  // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
+  // The version of the `*.wasm` files must match the version of `sql.js`.
+  // Must end with a "/".
+  SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+</script>
+
+<script>
+  const sequelize = new Sequelize('sqlite://:memory:', {
+    dialectModule: sqlJsAsSqlite3
+  })
+</script>
 ```
 
 ## Limitations
