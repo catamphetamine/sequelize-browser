@@ -6,15 +6,30 @@
 
     <script src="./lib/sequelize.script.js"></script>
     <script src="./lib/prism.js"></script>
+
+    <!-- They say there're prism-based "live" code editors like `CodeFlask`. -->
+    <!-- https://github.com/PrismJS/prism/issues/3708#issuecomment-1756701769 -->
+    <!-- <script src="https://unpkg.com/codeflask/build/codeflask.min.js"></script> -->
+
     <script src="./lib/sql.js-as-sqlite3.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js"></script> -->
+    <script src="./lib/sql-wasm.js"></script>
     <script>
-      // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
-      // The version of the `*.wasm` files must match the version of `sql.js`.
-      // Must end with a "/".
-      SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+      // In order to run, `sql.js` requires downloading `*.wasm` modules in real time.
+      // The "base URL" for those `*.wasm` modules to be downloaded from is configured via a global `SQL_JS_WASM_FILE_BASE_URL` variable.
+      // The "base URL" must end with a trailing slash ("/").
+      // Both the included `sql-wasm.min.js` script and the `*.wasm` modules should be located at the same "base URL".
+      // SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/'
+      SQL_JS_WASM_FILE_BASE_URL = 'https://catamphetamine.github.io/sequelize-browser/lib/'
+      // SQL_JS_WASM_FILE_BASE_URL = window.location.origin + window.location.pathname + 'lib/'
     </script>
+
+    <!--
+    <script>
+      IS_EDITING = false
+    </script>
+    -->
 
     <style>
       body
@@ -49,123 +64,172 @@
         text-decoration: none;
       }
 
-      #run {
-        background-color: #fd8900;
+      /* Hides the white outline around code lines when editing the code. */
+      #code:focus-visible {
+        outline: none;
+      }
+
+      #run, #edit {
         text-transform: uppercase;
         letter-spacing: 1px;
         font-size: 0.75rem;
+        border-radius: 4px;
+        padding: 6px 12px;
+        display: inline-block;
+        cursor: pointer;
+      }
+
+      #run {
+        background-color: #fd8900;
         color: #000000;
         border: 1px solid currentColor;
-        border-radius: 4px;
-        display: inline-block;
-        padding: 6px 12px;
-        cursor: pointer;
       }
 
       #run:active {
         background-color: #fb7200;
       }
+
+      #edit {
+        background-color: transparent;
+        border: 1px solid transparent;
+        color: #fd8900;
+      }
+
+      #edit:active {
+        background-color: #fb7200;
+        border: 1px solid #000000;
+        color: #000000;
+      }
     </style>
 
-    <link href="./lib/prism.css" rel="stylesheet" />
+    <link href="./lib/prism-tomorrow.min.css" rel="stylesheet" />
   </head>
 
   <body>
-    <a id="main-link" href="https://gitlab.com/catamphetamine/sequelize">
-      sequelize
+    <a id="main-link" href="https://gitlab.com/catamphetamine/sequelize-browser" style="display: inline-block;">
+      <h1 style="font-size: inherit; font-weight: inherit; font-family: inherit;">
+        sequelize-browser
+      </h1>
     </a>
 
     <br/>
 
-    <div style="line-height: 1.35em">
-      In a web browser using an <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sqlite3"><code>sqlite3</code></a>-compatible interface for <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sql.js"><code>sql.js</code></a>.
-    </div>
+    <p style="margin-top: 0; margin-bottom: 1em; line-height: 1.35em">
+      A build of <a class="code-link" target="_blank" href="https://npmjs.com/package/sequelize"><code>sequelize</code></a> that runs in a web browser.
+    </p>
 
-    <pre><code class="language-html" id="example-html">&lt;script src="https://unpkg.com/sequelize-browser@6.x/sequelize.script.js"&gt;&lt;/script&gt;
+    <p style="margin-top: 0; margin-bottom: 1em; line-height: 1.35em">
+      Here, it runs on a <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sqlite3"><code>SQLite</code></a> in-memory database through <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sql.js"><code>sql.js</code></a> web-browser-compatible interface.
+    </p>
+
+    <h2 style="font-weight: normal; margin-top: 2em;">
+      How to use
+    </h2>
+
+    <p style="margin-top: 0; margin-bottom: 1em; line-height: 1.35em">
+      First, <code>sequelize-browser</code> and its dependencies should be included on a web page:
+    </p>
+
+    <pre><code class="language-html" id="code-html">&lt;script src="https://unpkg.com/sequelize-browser@6.x/sequelize.script.js"&gt;&lt;/script&gt;
 &lt;script src="https://unpkg.com/sql.js-as-sqlite3@0.2.x/bundle/sql.js-as-sqlite3.min.js"&gt;&lt;/script&gt;
-&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
-  // The version of the `*.wasm` files must match the version of `sql.js`.
-  // Must end with a "/".
-  SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+  // In order to run, `sql.js` requires downloading `*.wasm` modules in real time.
+  // The "base URL" for those `*.wasm` modules to be downloaded from is configured via a global `SQL_JS_WASM_FILE_BASE_URL` variable.
+  // The "base URL" must end with a trailing slash ("/").
+  // Both the included `sql-wasm.min.js` script and the `*.wasm` modules should be located at the same "base URL".
+  SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/'
 &lt;/script&gt;</code></pre>
 
-    <pre><code class="language-js" id="example">const sequelize = new Sequelize('sqlite://:memory:', { dialectModule: sqlJsAsSqlite3 });
+    <p style="margin-top: 2em; margin-bottom: 1em; line-height: 1.35em">
+      After that, just start writing <code>sequelize</code> code (the code below is editable):
+    </p>
 
+    <form>
+      <textarea id="code-source" style="display: none"></textarea>
+    </form>
+
+    <pre id="code-container"><code class="language-js" id="code" contenteditable></code></pre>
+
+    <script>
+      var CODE = `
+// Connect to an SQLite in-memory database instance.
+const sequelize = new Sequelize('sqlite://:memory:', { dialectModule: sqlJsAsSqlite3 });
+
+// Define a Sequelize "model" for storing user records.
 const User = sequelize.define('user', {
   username: Sequelize.DataTypes.STRING,
   birthday: Sequelize.DataTypes.DATE
 })
 
+// Create the "users" table in the database.
 await sequelize.sync()
 
-// Create and fetch a record.
-
+// Create a sample user record.
 let user = await User.create({
   username: 'jane',
   birthday: Date.UTC(1980, 6, 1)
 })
 
+// Fetch the sample user record.
 user = user.get({ plain: true })
 delete user.createdAt
 delete user.updatedAt
 
-alert(user)
+// Output the user record.
+alert(JSON.stringify(user, null, 2))
 
-// Clear the database.
-await User.truncate()</code></pre>
+// Clear the "users" table.
+await User.truncate()
+      `.trim()
 
-    <button id="run">
-      Run the example
-    </button>
+      document.getElementById('code').innerHTML = CODE
+    </script>
+
+    <div style="display: flex;">
+      <button id="run">
+        Run the code
+      </button>
+
+      <!--
+      <button id="edit">
+        Edit the code
+      </button>
+      -->
+    </div>
 
     <script>
-      let output = ''
+      // "Indirect" `eval` is considered more "safe".
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
+      const indirectEval = eval
 
-      function log(line) {
-        console.log(line)
-        output += line + '\n'
-      }
+      // let logText = ''
 
-      function clear() {
-        output = ''
-      }
+      // function log(line) {
+      //   console.log(line)
+      //   logText += line + '\n'
+      // }
+
+      // function clearLog() {
+      //   logText = ''
+      // }
 
       async function run() {
-        clear()
+        // // Clear the output log. The output log is currently not shown anywhere.
+        // clearLog()
 
-        const sequelize = new Sequelize('sqlite://:memory:', { dialectModule: sqlJsAsSqlite3 });
-
-        const User = sequelize.define('user', {
-          username: Sequelize.DataTypes.STRING,
-          birthday: Sequelize.DataTypes.DATE
-        })
-
-        await sequelize.sync()
-
-        // Create and fetch a record.
-
-        let user = await User.create({
-          username: 'jane',
-          birthday: Date.UTC(1980, 6, 1)
-        })
-
-        user = user.get({ plain: true })
-        delete user.createdAt
-        delete user.updatedAt
-
-        // Clear the database.
-        await User.truncate()
-
-        return user
+        // Wrap the code into an `async` function and call that function.
+        // That's to work around an error:
+        indirectEval('"use strict";' + '\n' + 'async function $() {' + '\n' + document.getElementById('code').innerText + '\n' + '}' + '\n' + '$()')
       }
 
-      function onClick() {
+      function onRunClick() {
+        // Re-highlight the code because newly-inserted code won't be highlighted.
+        Prism.highlightElement(document.getElementById('code'))
+
+        // Run the code.
         run().then(
-          user => {
-            alert(JSON.stringify(user, null, 2))
-          },
+          () => {},
           error => {
             console.error(error)
             alert(error)
@@ -173,7 +237,15 @@ await User.truncate()</code></pre>
         )
       }
 
-      document.getElementById('run').addEventListener('click', onClick)
+      document.getElementById('run').addEventListener('click', onRunClick)
+
+      // Code highlighting via `CodeFlask` (didn't test).
+      // new CodeFlask('#code-html', { language: 'js' });
+      // new CodeFlask('#code', { language: 'js' });
+
+      // Manual higlighting mode in Prism.
+      // Prism.highlightElement(document.getElementById('code-html'))
+      // Prism.highlightElement(document.getElementById('code'))
     </script>
   </body>
 </html>

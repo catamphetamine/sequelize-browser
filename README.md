@@ -123,10 +123,11 @@ import initSqlJs from 'sql.js'
 sqlJsAsSqlite3.configure({
   // `sql.js` package default export.
   initSqlJs,
-  // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
-  // The version of the `*.wasm` files must match the version of the `sql.js` package.
-  // Must end with a "/".
-  wasmFileBaseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+  // In order to run, `sql.js` requires downloading `*.wasm` modules in real time.
+  // The "base URL" for those `*.wasm` modules to be downloaded from is configured via a `wasmFileBaseUrl` parameter.
+  // The "base URL" must end with a trailing slash ("/").
+  // The package version in the "base URL" and the package version of the installed `sql.js` dependency must match.
+  wasmFileBaseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/'
 })
 
 const sequelize = new Sequelize('sqlite://:memory:', {
@@ -143,12 +144,13 @@ One can use any npm CDN service, e.g. [unpkg.com](https://unpkg.com) or [jsdeliv
 
 <script src="https://unpkg.com/sql.js-as-sqlite3@0.2.x/bundle/sql.js-as-sqlite3.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js"></script>
 <script>
-  // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
-  // The version of the `*.wasm` files must match the version of `sql.js`.
-  // Must end with a "/".
-  SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+  // In order to run, `sql.js` requires downloading `*.wasm` modules in real time.
+  // The "base URL" for those `*.wasm` modules to be downloaded from is configured via a global `SQL_JS_WASM_FILE_BASE_URL` variable.
+  // The "base URL" must end with a trailing slash ("/").
+  // Both the included `sql-wasm.min.js` script and the `*.wasm` modules should be located at the same "base URL".
+  SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/'
 </script>
 
 <script>
