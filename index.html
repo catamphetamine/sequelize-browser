@@ -8,6 +8,14 @@
     <script src="./lib/prism.js"></script>
     <script src="./lib/sql.js-as-sqlite3.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"></script>
+    <script>
+      // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
+      // The version of the `*.wasm` files must match the version of `sql.js`.
+      // Must end with a "/".
+      SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+    </script>
+
     <style>
       body
       {
@@ -73,8 +81,15 @@
       In a web browser using an <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sqlite3"><code>sqlite3</code></a>-compatible interface for <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sql.js"><code>sql.js</code></a>.
     </div>
 
-    <pre><code class="language-html" id="example-html">&lt;script src="https://unpkg.com/sql.js-as-sqlite3@0.1.x/bundle/sql.js-as-sqlite3.min.js"&gt;&lt;/script&gt;
-&lt;script src="https://unpkg.com/sequelize-browser@6.x/sequelize.script.js"&gt;&lt;/script&gt;    </code></pre>
+    <pre><code class="language-html" id="example-html">&lt;script src="https://unpkg.com/sequelize-browser@6.x/sequelize.script.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/sql.js-as-sqlite3@0.2.x/bundle/sql.js-as-sqlite3.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // Base URL for `sql.js` to get the `*.wasm` files like `sql-wasm-debug.wasm`.
+  // The version of the `*.wasm` files must match the version of `sql.js`.
+  // Must end with a "/".
+  SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'
+&lt;/script&gt;</code></pre>
 
     <pre><code class="language-js" id="example">const sequelize = new Sequelize('sqlite://:memory:', { dialectModule: sqlJsAsSqlite3 });
 
