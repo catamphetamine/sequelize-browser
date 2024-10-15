@@ -13,14 +13,15 @@
 
     <script src="./lib/sql.js-as-sqlite3.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js"></script>
-    <!-- <script src="./lib/sql-wasm.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js"></script> -->
+    <script src="./lib/sql-wasm.js"></script>
     <script>
       // In order to run, `sql.js` requires downloading `*.wasm` modules in real time.
       // The "base URL" for those `*.wasm` modules to be downloaded from is configured via a global `SQL_JS_WASM_FILE_BASE_URL` variable.
       // The "base URL" must end with a trailing slash ("/").
       // Both the included `sql-wasm.min.js` script and the `*.wasm` modules should be located at the same "base URL".
-      SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/'
+      // SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/'
+      SQL_JS_WASM_FILE_BASE_URL = 'https://catamphetamine.github.io/sequelize-browser/lib/'
       // SQL_JS_WASM_FILE_BASE_URL = window.location.origin + window.location.pathname + 'lib/'
     </script>
 
