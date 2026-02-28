@@ -1,6 +1,6 @@
 {
   "name": "sequelize-browser",
-  "version": "6.1.3",
+  "version": "6.1.5",
   "description": "Sequelize build that runs in a web browser",
   "module": "sequelize.js",
   "main": "sequelize.cjs",
@@ -21,13 +21,14 @@
   },
   "sideEffects": false,
   "bin": {
-    "sequelize-browser": "./runnable/sequelize-browser.js"
+    "sequelize-browser": "./scripts/sequelize-browser.js"
   },
   "scripts": {
-    "test": "mocha --colors --bail --reporter spec \"./{,!(node_modules|commonjs|modules)/**/}*.test.js\" --recursive",
+    "test": "mocha --bail \"source/**/*.test.js\" \"test/*.test.js\" \"test/!(exports)/**/*.test.js\"",
+    "test:exports": "mocha --bail \"test/exports/**/*.test.js\"",
     "clean-for-build": "rimraf ./commonjs/**/* ./modules/**/*",
     "build-commonjs-modules": "cross-env BABEL_ENV=commonjs babel ./source --out-dir ./commonjs --source-maps",
-    "build-commonjs-package.json": "node runnable/create-commonjs-package-json.js",
+    "build-commonjs-package.json": "node scripts/create-commonjs-package-json.js",
     "build-commonjs": "npm-run-all build-commonjs-modules build-commonjs-package.json",
     "build-es6-modules": "cross-env BABEL_ENV=es6 babel ./source --out-dir ./modules --source-maps",
     "build-build": "node build.default.js",
@@ -35,8 +36,8 @@
     "build": "npm-run-all clean-for-build create-validator-shim build-commonjs build-es6-modules update-sequelize update-validator build-build build-website",
     "update-sequelize": "yarn add sequelize@latest --dev",
     "update-validator": "yarn upgrade sequelize",
-    "create-validator-shim": "node runnable/create-validator-shim.js",
-    "prepublishOnly": "npm-run-all build test"
+    "create-validator-shim": "node scripts/create-validator-shim.js",
+    "prepublishOnly": "npm-run-all build test test:exports"
   },
   "peerDependencies": {
     "sequelize": "^6.0.0"
@@ -54,9 +55,9 @@
     "mocha": "^10.0.0",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
-    "sequelize": "^6.37.4",
-    "sql.js": "^1.10.2",
-    "sql.js-as-sqlite3": "^0.2.0"
+    "sequelize": "^6.37.7",
+    "sql.js": "^1.14.0",
+    "sql.js-as-sqlite3": "^0.2.3"
   },
   "repository": {
     "type": "git",

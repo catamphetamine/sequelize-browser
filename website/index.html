@@ -115,34 +115,11 @@
     <br/>
 
     <p style="margin-top: 0; margin-bottom: 1em; line-height: 1.35em">
-      A build of <a class="code-link" target="_blank" href="https://npmjs.com/package/sequelize"><code>sequelize</code></a> that runs in a web browser.
+      A build of <a class="code-link" target="_blank" href="https://npmjs.com/package/sequelize"><code>sequelize</code></a> that works in a web browser.
     </p>
 
     <p style="margin-top: 0; margin-bottom: 1em; line-height: 1.35em">
-      Here, it runs on a <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sqlite3"><code>SQLite</code></a> in-memory database through <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sql.js"><code>sql.js</code></a> web-browser-compatible interface.
-    </p>
-
-    <h2 style="font-weight: normal; margin-top: 2em;">
-      How to use
-    </h2>
-
-    <p style="margin-top: 0; margin-bottom: 1em; line-height: 1.35em">
-      First, <code>sequelize-browser</code> and its dependencies should be included on a web page:
-    </p>
-
-    <pre><code class="language-html" id="code-html">&lt;script src="https://unpkg.com/sequelize-browser@6.x/sequelize.script.js"&gt;&lt;/script&gt;
-&lt;script src="https://unpkg.com/sql.js-as-sqlite3@0.2.x/bundle/sql.js-as-sqlite3.min.js"&gt;&lt;/script&gt;
-&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js"&gt;&lt;/script&gt;
-&lt;script&gt;
-  // In order to run, `sql.js` requires downloading `*.wasm` modules in real time.
-  // The "base URL" for those `*.wasm` modules to be downloaded from is configured via a global `SQL_JS_WASM_FILE_BASE_URL` variable.
-  // The "base URL" must end with a trailing slash ("/").
-  // Both the included `sql-wasm.min.js` script and the `*.wasm` modules should be located at the same "base URL".
-  SQL_JS_WASM_FILE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/'
-&lt;/script&gt;</code></pre>
-
-    <p style="margin-top: 2em; margin-bottom: 1em; line-height: 1.35em">
-      After that, just start writing <code>sequelize</code> code (the code below is editable):
+      In this demo, it runs on an instance of <a class="code-link" target="_blank" href="https://www.npmjs.com/package/sqlite3"><code>SQLite</code></a> in-memory database.
     </p>
 
     <form>
